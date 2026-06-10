@@ -2,6 +2,10 @@
 
 > Documento de planejamento gerado a partir da conversa entre **Fernando Jorge (Fê)** e **Samuel (Sam)**.
 > Data: junho/2026. Status: **rascunho para validação**.
+>
+> **Análise dos materiais reais da DCAS** e mapa de automação: ver
+> `ANALISE-MATERIAIS-E-AUTOMACAO.md`, `spec-guia-unificada.md`,
+> `template-importacao-funcionarios.md`, `regras-pcmso-eventos.md`.
 
 ---
 
