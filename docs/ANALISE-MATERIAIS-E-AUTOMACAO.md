@@ -70,7 +70,7 @@ Detalhamento operacional em `regras-pcmso-eventos.md`.
 ## 6. Decisões em aberto
 - **SOC (sistema.soc.com.br)** é o software da clínica que emite os ASOs. **Fase 1: apenas armazenar
   o PDF** enviado; avaliar integração via API depois.
-- **Dr. Maurício Tanabe** assina os ASOs — confirmar se é o mesmo Maurício sócio (documentação/assinatura).
+- **Dr. Maurício Tanabe (CRM 134244/SP)** é o médico que assina os ASOs — **pessoa diferente** do Maurício sócio.
 - ASOs "sem informação" são **imagens escaneadas** → exigir upload do PDF com texto ou prever OCR.
 
 ---
