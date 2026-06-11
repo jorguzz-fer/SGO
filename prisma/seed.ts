@@ -19,7 +19,7 @@ async function main() {
   });
 
   // Empresa-cliente piloto (DECAS)
-  await prisma.empresaCliente.upsert({
+  const dcas = await prisma.empresaCliente.upsert({
     where: { slug: "dcas" },
     update: {},
     create: {
@@ -31,7 +31,21 @@ async function main() {
     },
   });
 
-  console.log(`Seed concluído. Admin: ${adminEmail}`);
+  // Usuário CLIENTE (RH da DECAS) — escopo multi-tenant
+  const clienteEmail = process.env.SEED_CLIENTE_EMAIL ?? "rh@dcas.com.br";
+  await prisma.usuario.upsert({
+    where: { email: clienteEmail },
+    update: {},
+    create: {
+      email: clienteEmail,
+      nome: "RH DECAS",
+      role: "CLIENTE",
+      empresaClienteId: dcas.id,
+      senhaHash: await bcrypt.hash(adminSenha, 10),
+    },
+  });
+
+  console.log(`Seed concluído. Admin: ${adminEmail} · Cliente: ${clienteEmail}`);
 }
 
 main()
