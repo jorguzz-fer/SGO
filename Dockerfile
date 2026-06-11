@@ -27,5 +27,5 @@ COPY --from=build /app/public ./public
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/prisma ./prisma
 EXPOSE 3000
-# Aplica migrations e sobe o app
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
+# Aplica migrations, garante o seed (idempotente) e sobe o app
+CMD ["sh", "-c", "npx prisma migrate deploy && (npm run db:seed || true) && npm run start"]
