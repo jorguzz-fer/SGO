@@ -1,0 +1,296 @@
+// SGO — Sistema de Gestão Ocupacional
+// Schema Prisma. Ver PROJECT.md para o contexto de cada entidade.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============ EMPRESAS / USUÁRIOS (multi-tenant) ============
+
+model EmpresaCliente {
+  id          String   @id @default(cuid())
+  externalId  String?  @unique // id no app Wow+
+  slug        String   @unique // "dcas"
+  razaoSocial String
+  cnpj        String   @unique
+  cnae        String?
+  grauRisco   Int? // DCAS = 3
+  logoUrl     String? // white label
+  status      EmpresaStatus @default(ATIVO)
+  plano       String   @default("piloto")
+  criadoEm    DateTime @default(now())
+
+  funcionarios Funcionario[]
+  solicitacoes Solicitacao[]
+  usuarios     Usuario[]
+  documentos   Documento[]
+
+  @@map("empresas_cliente")
+}
+
+enum EmpresaStatus {
+  ATIVO
+  INATIVO
+  TRIAL
+}
+
+model Usuario {
+  id               String  @id @default(cuid())
+  externalId       String? @unique // SSO Wow+
+  email            String  @unique
+  senhaHash        String?
+  nome             String
+  role             Role    @default(CLIENTE)
+  empresaClienteId String? // null = equipe Wow+ (COORDENACAO/ADMIN)
+  medicoId         String? @unique
+  clinicaId        String?
+  criadoEm         DateTime @default(now())
+
+  empresaCliente EmpresaCliente? @relation(fields: [empresaClienteId], references: [id])
+  medico         Medico?         @relation(fields: [medicoId], references: [id])
+  clinica        Clinica?        @relation(fields: [clinicaId], references: [id])
+
+  @@index([empresaClienteId])
+  @@map("usuarios")
+}
+
+enum Role {
+  CLIENTE
+  COORDENACAO
+  MEDICO
+  CLINICA
+  ADMIN
+}
+
+// ============ FUNCIONÁRIOS ============
+
+model Funcionario {
+  id               String   @id @default(cuid())
+  externalId       String? // id no Wow+
+  empresaClienteId String
+  nome             String
+  cpf              String
+  rg               String?
+  pis              String?
+  ctps             String?
+  ctpsSerie        String?
+  matriculaEsocial String?
+  dataNascimento   DateTime?
+  sexo             Sexo?
+  funcao           String?
+  cbo              String? // código da função (ASO/eSocial)
+  setor            String? // setor interno
+  tomador          String? // cliente final / posto (Prysmian, Infracommerce) — pode virar entidade
+  centroCusto      String? // contrato p/ faturamento
+  dataAdmissao     DateTime?
+  dataDemissao     DateTime?
+  cidade           String?
+  uf               String?
+  foneCelular      String?
+  foneResidencial  String?
+  email            String?
+  status           FuncionarioStatus @default(ATIVO)
+  criadoEm         DateTime @default(now())
+
+  empresaCliente EmpresaCliente @relation(fields: [empresaClienteId], references: [id], onDelete: Cascade)
+  solicitacoes   Solicitacao[]
+  asos           Aso[]
+  afastamentos   Afastamento[]
+
+  @@unique([empresaClienteId, cpf])
+  @@index([empresaClienteId, status])
+  @@map("funcionarios")
+}
+
+enum FuncionarioStatus {
+  ATIVO
+  AFASTADO
+  DEMITIDO
+}
+
+enum Sexo {
+  MASCULINO
+  FEMININO
+  OUTRO
+}
+
+// ============ REDE CREDENCIADA ============
+
+model Clinica {
+  id       String  @id @default(cuid())
+  nome     String
+  cnpj     String?
+  endereco String?
+  cidade   String?
+  uf       String?
+  horarios String?
+  exames   Json? // exames oferecidos
+  regras   String? // antecedência, doc c/ foto, etc.
+  contato  String?
+  ativo    Boolean @default(true)
+
+  solicitacoes Solicitacao[]
+  usuarios     Usuario[]
+
+  @@index([cidade, uf])
+  @@map("clinicas")
+}
+
+model Medico {
+  id            String  @id @default(cuid())
+  nome          String
+  crm           String
+  especialidade String?
+  telemedicina  Boolean @default(true)
+  ativo         Boolean @default(true)
+
+  solicitacoes Solicitacao[]
+  usuario      Usuario?
+
+  @@map("medicos")
+}
+
+// ============ SOLICITAÇÃO (guia unificada = evento ocupacional) ============
+
+model Solicitacao {
+  id                String            @id @default(cuid())
+  externalId        String?
+  empresaClienteId  String
+  funcionarioId     String
+  tipoExame         TipoExame
+  modalidade        Modalidade
+  examesNecessarios Json // [{tipo:"AUDIOMETRIA"},{tipo:"OUTROS",detalhe:"trabalho em altura"}]
+  observacoes       String?
+  status            StatusSolicitacao @default(SOLICITADO)
+  clinicaId         String?
+  medicoId          String?
+  dataAgendada      DateTime?
+  parecer           Parecer?
+  criadoPorId       String?
+  criadoEm          DateTime          @default(now())
+
+  empresaCliente EmpresaCliente @relation(fields: [empresaClienteId], references: [id], onDelete: Cascade)
+  funcionario    Funcionario    @relation(fields: [funcionarioId], references: [id])
+  clinica        Clinica?       @relation(fields: [clinicaId], references: [id])
+  medico         Medico?        @relation(fields: [medicoId], references: [id])
+  aso            Aso?
+  historico      StatusEvento[]
+
+  @@index([empresaClienteId, status])
+  @@index([funcionarioId])
+  @@map("solicitacoes")
+}
+
+enum TipoExame {
+  ADMISSIONAL
+  PERIODICO
+  RETORNO_AO_TRABALHO
+  MUDANCA_DE_FUNCAO
+  DEMISSIONAL
+}
+
+enum Modalidade {
+  TELEMEDICINA
+  PRESENCIAL
+}
+
+enum StatusSolicitacao {
+  SOLICITADO
+  ROTEADO
+  AGENDADO
+  REALIZADO
+  ASO_EMITIDO
+  CONCLUIDO
+  CANCELADO
+}
+
+enum Parecer {
+  APTO
+  INAPTO
+}
+
+// ============ ASO / DOCUMENTOS / AUDITORIA ============
+
+model Aso {
+  id               String   @id @default(cuid())
+  solicitacaoId    String   @unique
+  funcionarioId    String
+  arquivoKey       String // chave no storage; download via URL assinada
+  parecer          Parecer
+  examesRealizados Json?
+  emitidoEm        DateTime @default(now())
+  validadeAte      DateTime?
+
+  solicitacao Solicitacao @relation(fields: [solicitacaoId], references: [id])
+  funcionario Funcionario @relation(fields: [funcionarioId], references: [id])
+
+  @@index([funcionarioId])
+  @@map("asos")
+}
+
+model StatusEvento {
+  id            String             @id @default(cuid())
+  solicitacaoId String
+  deStatus      StatusSolicitacao?
+  paraStatus    StatusSolicitacao
+  autorId       String?
+  meta          Json?
+  ocorridoEm    DateTime           @default(now())
+
+  solicitacao Solicitacao @relation(fields: [solicitacaoId], references: [id], onDelete: Cascade)
+
+  @@index([solicitacaoId, ocorridoEm])
+  @@map("status_eventos")
+}
+
+model Afastamento {
+  id            String    @id @default(cuid())
+  funcionarioId String
+  inicio        DateTime
+  fim           DateTime?
+  motivo        String?
+
+  funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+
+  @@map("afastamentos")
+}
+
+model Documento {
+  id               String   @id @default(cuid())
+  empresaClienteId String
+  tipo             TipoDocumento
+  arquivoKey       String
+  vigenciaInicio   DateTime?
+  vigenciaFim      DateTime?
+  versao           String?
+  criadoEm         DateTime @default(now())
+
+  empresaCliente EmpresaCliente @relation(fields: [empresaClienteId], references: [id], onDelete: Cascade)
+
+  @@map("documentos")
+}
+
+enum TipoDocumento {
+  PCMSO
+  PGR
+  OUTRO
+}
+
+// ============ INTEGRAÇÃO (Wow+) ============
+
+model WebhookOutbox {
+  id         String   @id @default(cuid())
+  tipo       String // "evento.status_changed", "aso.emitido"...
+  payload    Json
+  entregue   Boolean  @default(false)
+  tentativas Int      @default(0)
+  criadoEm   DateTime @default(now())
+
+  @@index([entregue, criadoEm])
+  @@map("webhook_outbox")
+}
