@@ -28,6 +28,7 @@ clínicas credenciadas. Domínio sensível: **dados de saúde + LGPD**.
 - Reuse componentes/utilitários existentes antes de criar novos.
 
 ## Domínio & docs (leia quando for relevante ao que está fazendo)
+- **Contexto completo, schema Prisma, sprints e ADRs → `PROJECT.md`** (leia primeiro)
 - Visão geral e fases → `docs/DEMANDA-Produto3-Gestao-Ocupacional.md`
 - Formulário/guia única + stack/segurança/LGPD → `docs/spec-guia-unificada.md`
 - Quando cada exame vence (motor de regras) → `docs/regras-pcmso-eventos.md`
