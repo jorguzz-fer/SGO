@@ -15,18 +15,24 @@
 | Campo | Tipo | Obrigatório | Observação |
 |---|---|---|---|
 | Nome | texto | sim | |
-| Matrícula eSocial | texto | não | aparece na guia presencial |
-| Data de nascimento | data | sim | |
-| Data de admissão | data | condicional | obrigatória p/ admissional/periódico |
-| Data de demissão | data | condicional | obrigatória p/ demissional |
+| CPF | texto | sim | chave do funcionário |
 | RG | texto | sim | |
+| Data de nascimento | data | sim | |
+| Sexo | enum (M/F/Outro) | sim | exigido no ASO |
+| Matrícula eSocial | texto | não | aparece na guia presencial |
 | PIS | texto | não | |
 | CTPS + Série | texto | não | |
-| CPF | texto | sim | chave do funcionário |
+| Data de admissão | data | condicional | obrigatória p/ admissional/periódico |
+| Data de demissão | data | condicional | obrigatória p/ demissional |
+| Função / Cargo | texto | sim | determina exames necessários |
+| CBO (código da função) | texto | não | ASO/eSocial |
+| Setor | texto | sim | setor interno |
+| **Tomador / Posto** | texto/ref | sim | **cliente final onde atua (Prysmian, Infracommerce…)** — roteamento + faturamento |
+| Centro de custo / Contrato | texto | não | amarra ao contrato p/ faturamento |
+| Cidade / UF | texto | sim | roteamento p/ clínica |
 | Fone celular | texto | sim | usado p/ telemedicina/notificação |
 | Fone residencial | texto | não | |
-| Função / Cargo | texto | sim | determina exames necessários |
-| Setor | texto | sim | usado p/ riscos (PGR) e roteamento |
+| E-mail | texto | não | régua de comunicação |
 
 ## 3. Tipo de exame (seleção única) — enum
 `ADMISSIONAL` · `PERIODICO` · `RETORNO_AO_TRABALHO` · `MUDANCA_DE_FUNCAO` · `DEMISSIONAL`
@@ -40,6 +46,8 @@
 ## 5. Exames necessários (múltipla escolha) — enum + texto
 `CLINICO` · `AUDIOMETRIA` · `OUTROS` (texto livre — ex.: "trabalho em altura",
 "amarração e organização de cargas", espirometria, raio-X)
+> **Definição híbrida:** o sistema **sugere** os exames a partir de `função + tomador/setor`
+> usando os riscos do PGR/PCMSO (GHE), e o **RH ajusta** antes de enviar.
 
 ## 6. Clínica de destino (roteamento)
 - Selecionada automaticamente por **cidade/UF do funcionário/setor** (rede credenciada).

@@ -12,6 +12,7 @@
 | `nome` | sim | MARCIA DA SILVA RODRIGUES | identificação |
 | `data_nascimento` | sim | 23/02/2004 | guia/ASO |
 | `rg` | sim | 27.475.225-6 | guia |
+| `sexo` | sim | M / F | exigido no ASO |
 | `pis` | não | | guia |
 | `ctps` | não | | guia |
 | `ctps_serie` | não | | guia |
@@ -19,7 +20,10 @@
 | `data_admissao` | condicional | 04/05/2023 | base p/ periódico e admissional |
 | `data_demissao` | não | | base p/ demissional |
 | `funcao` | sim | AUXILIAR DE SERVIÇOS GERAIS | determina exames |
-| `setor` | sim | FA ROSEIRA / PRYSMIAN | riscos (PGR) + roteamento |
+| `cbo` | não | 5143-20 | código da função (ASO/eSocial) |
+| `setor` | sim | FA ROSEIRA | setor interno |
+| `tomador` | sim | PRYSMIAN - SOROCABA | **cliente final / posto** — roteamento + faturamento |
+| `centro_custo` | não | CT-0042 | contrato p/ faturamento |
 | `cidade` | sim | Sorocaba | **roteamento p/ clínica** |
 | `uf` | sim | SP | roteamento |
 | `fone_celular` | sim | (11) 91648-3005 | telemedicina/notificação |

@@ -154,8 +154,12 @@ model Funcionario {
   dataNascimento   DateTime?
   dataAdmissao     DateTime?
   dataDemissao     DateTime?
+  sexo             Sexo?
   funcao           String?
-  setor            String?
+  cbo              String?                   // código da função (ASO/eSocial)
+  setor            String?                   // setor interno
+  tomador          String?                   // cliente final / posto (Prysmian, Infracommerce) — pode virar entidade
+  centroCusto      String?                   // contrato p/ faturamento
   cidade           String?
   uf               String?
   foneCelular      String?
@@ -175,6 +179,7 @@ model Funcionario {
 }
 
 enum FuncionarioStatus { ATIVO AFASTADO DEMITIDO }
+enum Sexo { MASCULINO FEMININO OUTRO }
 
 // ============ REDE CREDENCIADA ============
 
