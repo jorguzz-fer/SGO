@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { signOut } from "@/auth";
-import { requireUser } from "@/lib/session";
+import { requireUser, isCoordenacao } from "@/lib/session";
 
 const PAPEL_LABEL: Record<string, string> = {
   CLIENTE: "Cliente (RH)",
@@ -31,6 +31,11 @@ export default async function PainelLayout({
             <Link href="/painel/solicitacoes" className="text-zinc-600 hover:underline dark:text-zinc-300">
               Solicitações
             </Link>
+            {isCoordenacao(user.role) && (
+              <Link href="/painel/credenciados" className="text-zinc-600 hover:underline dark:text-zinc-300">
+                Credenciados
+              </Link>
+            )}
           </nav>
           <div className="flex items-center gap-3 text-sm">
             <span className="text-zinc-500">
