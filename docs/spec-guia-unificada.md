@@ -44,10 +44,12 @@
 > presença física (ex.: audiometria) ou função de risco.
 
 ## 5. Exames necessários (múltipla escolha) — enum + texto
-`CLINICO` · `AUDIOMETRIA` · `OUTROS` (texto livre — ex.: "trabalho em altura",
-"amarração e organização de cargas", espirometria, raio-X)
+`CLINICO` · `AUDIOMETRIA` · `ACUIDADE_VISUAL` · `ESPIROMETRIA` · `RAIO_X` ·
+`HEMOGRAMA` · `GLICEMIA` · `ELETROCARDIOGRAMA` · `ELETROENCEFALOGRAMA` ·
+`OUTROS` (texto livre — ex.: "trabalho em altura", "amarração e organização de cargas")
 > **Definição híbrida:** o sistema **sugere** os exames a partir de `função + tomador/setor`
 > usando os riscos do PGR/PCMSO (GHE), e o **RH ajusta** antes de enviar.
+> Novos exames recorrentes em `OUTROS` viram itens do enum com o tempo.
 
 ## 6. Clínica de destino (roteamento)
 - Selecionada automaticamente por **cidade/UF do funcionário/setor** (rede credenciada).
