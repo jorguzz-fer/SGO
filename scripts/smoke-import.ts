@@ -58,7 +58,8 @@ async function main() {
       create: { empresaClienteId: dcas.id, ...result.data },
       update: { ...result.data },
     });
-    existing ? atualizados++ : criados++;
+    if (existing) atualizados++;
+    else criados++;
   }
 
   const total = await prisma.funcionario.count({ where: { empresaClienteId: dcas.id } });

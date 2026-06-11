@@ -3,6 +3,58 @@ import { z } from "zod";
 export const sexoEnum = z.enum(["MASCULINO", "FEMININO", "OUTRO"]);
 export const statusEnum = z.enum(["ATIVO", "AFASTADO", "DEMITIDO"]);
 
+export const tipoExameEnum = z.enum([
+  "ADMISSIONAL",
+  "PERIODICO",
+  "RETORNO_AO_TRABALHO",
+  "MUDANCA_DE_FUNCAO",
+  "DEMISSIONAL",
+]);
+export const modalidadeEnum = z.enum(["TELEMEDICINA", "PRESENCIAL"]);
+export const exameEnum = z.enum([
+  "CLINICO",
+  "AUDIOMETRIA",
+  "ACUIDADE_VISUAL",
+  "ESPIROMETRIA",
+  "RAIO_X",
+  "HEMOGRAMA",
+  "GLICEMIA",
+  "ELETROCARDIOGRAMA",
+  "ELETROENCEFALOGRAMA",
+  "OUTROS",
+]);
+
+export const TIPO_EXAME_LABEL: Record<string, string> = {
+  ADMISSIONAL: "Admissional",
+  PERIODICO: "Periódico",
+  RETORNO_AO_TRABALHO: "Retorno ao trabalho",
+  MUDANCA_DE_FUNCAO: "Mudança de função",
+  DEMISSIONAL: "Demissional",
+};
+
+export const EXAME_LABEL: Record<string, string> = {
+  CLINICO: "Clínico",
+  AUDIOMETRIA: "Audiometria",
+  ACUIDADE_VISUAL: "Acuidade visual",
+  ESPIROMETRIA: "Espirometria",
+  RAIO_X: "Raio-X",
+  HEMOGRAMA: "Hemograma",
+  GLICEMIA: "Glicemia",
+  ELETROCARDIOGRAMA: "Eletrocardiograma",
+  ELETROENCEFALOGRAMA: "Eletroencefalograma",
+  OUTROS: "Outros",
+};
+
+export const STATUS_SOLICITACAO_LABEL: Record<string, string> = {
+  SOLICITADO: "Solicitado",
+  ROTEADO: "Roteado",
+  AGENDADO: "Agendado",
+  REALIZADO: "Realizado",
+  ASO_EMITIDO: "ASO emitido",
+  CONCLUIDO: "Concluído",
+  CANCELADO: "Cancelado",
+};
+
 const optionalText = z
   .string()
   .trim()

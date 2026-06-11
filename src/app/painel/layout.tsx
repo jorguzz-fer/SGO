@@ -28,6 +28,9 @@ export default async function PainelLayout({
             <Link href="/painel/funcionarios" className="text-zinc-600 hover:underline dark:text-zinc-300">
               Funcionários
             </Link>
+            <Link href="/painel/solicitacoes" className="text-zinc-600 hover:underline dark:text-zinc-300">
+              Solicitações
+            </Link>
           </nav>
           <div className="flex items-center gap-3 text-sm">
             <span className="text-zinc-500">
