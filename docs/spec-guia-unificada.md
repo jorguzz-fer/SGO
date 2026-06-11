@@ -60,3 +60,45 @@
 ## 9. Estados do evento (ciclo de vida)
 `SOLICITADO` → `ROTEADO` (médico/clínica) → `AGENDADO` → `REALIZADO` →
 `ASO_EMITIDO` (PDF anexado) → `CONCLUIDO` (apto/inapto) · ramo `CANCELADO`.
+
+---
+
+## 10. Stack & Arquitetura
+- **Front+back**: Next.js (App Router) + **TypeScript** · **Tailwind CSS** (design system Wow+ quando aplicável).
+- **ORM/Banco**: **Prisma** + **PostgreSQL**.
+- **Auth**: **NextAuth** (sessão JWT) com **RBAC** por papel: `CLIENTE` (DECAS), `COORDENACAO` (Raquel), `MEDICO`, `CLINICA`, `ADMIN`.
+- **Multi-tenant**: isolamento por `empresaClienteId` em todas as queries (cliente só enxerga seus dados).
+- **Storage de arquivos** (ASO/PDF): bucket S3-compatível, acesso via **URLs assinadas com expiração**.
+- **E-mail transacional** (régua de comunicação) + central de notificações in-app.
+- **Validação**: `zod` em toda entrada (forms e API).
+- **Hosting/Deploy**: **Coolify** (self-hosted) — app Next.js + **Postgres** + bucket S3-compatível
+  (ex.: MinIO) no mesmo ambiente. Vantagem LGPD: dados no servidor próprio (Brasil). Build via Nixpacks/Dockerfile.
+
+## 11. Segurança
+- **HTTPS/TLS** obrigatório + HSTS; headers seguros (CSP, X-Frame-Options).
+- **Senhas** com hash forte (argon2/bcrypt); **2FA** para `COORDENACAO`/`ADMIN`.
+- **Autorização**: RBAC + escopo por tenant (row-level). Médico/Clínica só veem o **evento roteado a eles**.
+- **Acesso por link** (médico/clínica no e-mail): **token assinado (JWT)** com escopo a 1 evento e **expiração** (magic-link); revogável.
+- **Criptografia de campos sensíveis** em repouso (CPF, RG, dados de saúde — categoria especial).
+- **ASOs**: armazenados criptografados; download só por URL assinada de curta duração.
+- **Auditoria imutável**: log de quem acessou/alterou cada evento (alimenta a linha do tempo).
+- **API/Webhooks**: tokens, **HMAC** nos webhooks, **rate limiting**, idempotência.
+- **Segredos** em variáveis de ambiente (nunca no repo); princípio do menor privilégio; backups com retenção.
+- Proteções padrão: CSRF, XSS, SQL-injection (Prisma parametrizado), validação `zod`.
+
+## 12. LGPD
+- **Dados de saúde = dado pessoal sensível** (LGPD art. 11). **Base legal**: cumprimento de obrigação
+  legal/regulatória (NR-7/PCMSO) e tutela da saúde — *não* depende de consentimento, mas exige transparência.
+- **Papéis**: DECAS (empregador) = **controlador**; O+/SGO = **operador**; clínicas/médicos = sub-operadores
+  ou controladores conjuntos → formalizar em **DPA** (acordo de tratamento) no contrato.
+- **Minimização & finalidade**: coletar só os campos da guia, usar exclusivamente p/ gestão ocupacional.
+- **Retenção**: ASO/histórico **20 anos** (exigência legal do PCMSO) com base legal específica; demais dados pelo tempo necessário.
+- **Direitos do titular** (funcionário): acesso/correção via canal definido; **aviso de privacidade**.
+- **ROPA** (registro das operações de tratamento) + **plano de resposta a incidentes** (notificação ANPD/titular).
+- **Segurança técnica** (art. 46): ver §11. Relatórios/dashboards **agregados/anonimizados** quando possível.
+- **Localidade**: manter dados em hosting no Brasil ou com salvaguardas adequadas.
+
+## 13. Integração com o App da Wow+
+Contrato de APIs (REST + webhooks, auth por token, SSO) detalhado em
+**`spec-integracao-wowmais-api.md`**. Premissa: SGO **expõe** dados ocupacionais para o app Wow+ e
+**recebe** sincronização de empresas/funcionários (refinar contra o repo `wowmais`).
