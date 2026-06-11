@@ -96,7 +96,7 @@
 - **Direitos do titular** (funcionário): acesso/correção via canal definido; **aviso de privacidade**.
 - **ROPA** (registro das operações de tratamento) + **plano de resposta a incidentes** (notificação ANPD/titular).
 - **Segurança técnica** (art. 46): ver §11. Relatórios/dashboards **agregados/anonimizados** quando possível.
-- **Localidade**: manter dados em hosting no Brasil ou com salvaguardas adequadas.
+- **Localidade**: dados hospedados no servidor próprio via **Coolify** (controle total, facilita manter no Brasil).
 
 ## 13. Integração com o App da Wow+
 Contrato de APIs (REST + webhooks, auth por token, SSO) detalhado em
