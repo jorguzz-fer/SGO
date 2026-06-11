@@ -141,3 +141,36 @@ export async function rotearSolicitacao(
   revalidatePath("/painel/solicitacoes");
   redirect(`/painel/solicitacoes/${sol.id}`);
 }
+
+/** Cliente/Coordenação marca a solicitação como concluída (após baixar o ASO). */
+export async function concluirSolicitacao(fd: FormData): Promise<void> {
+  const user = await requireUser();
+  const solicitacaoId = str(fd, "solicitacaoId");
+  if (!solicitacaoId) return;
+
+  const sol = await prisma.solicitacao.findFirst({
+    where: { id: solicitacaoId, ...tenantScope(user) },
+    select: { id: true, status: true },
+  });
+  if (!sol || sol.status !== "ASO_EMITIDO") return;
+
+  await prisma.$transaction(async (tx) => {
+    await tx.solicitacao.update({
+      where: { id: sol.id },
+      data: { status: "CONCLUIDO" },
+    });
+    await tx.statusEvento.create({
+      data: {
+        solicitacaoId: sol.id,
+        deStatus: "ASO_EMITIDO",
+        paraStatus: "CONCLUIDO",
+        autorId: user.id,
+      },
+    });
+  });
+
+  await notify("solicitacao.concluida", { solicitacaoId: sol.id });
+  revalidatePath(`/painel/solicitacoes/${sol.id}`);
+  revalidatePath("/painel/solicitacoes");
+  redirect(`/painel/solicitacoes/${sol.id}`);
+}

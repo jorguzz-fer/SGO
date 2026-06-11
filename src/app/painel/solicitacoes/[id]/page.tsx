@@ -7,7 +7,9 @@ import {
   STATUS_SOLICITACAO_LABEL,
   TIPO_EXAME_LABEL,
 } from "@/lib/validations";
+import { criarTokenAtendimento, linkAtendimento } from "@/lib/token";
 import RoteamentoForm from "../_RoteamentoForm";
+import { concluirSolicitacao } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -29,12 +31,24 @@ export default async function SolicitacaoDetalhe({
       empresaCliente: { select: { razaoSocial: true } },
       medico: true,
       clinica: true,
+      aso: { select: { id: true } },
       historico: { orderBy: { ocorridoEm: "asc" } },
     },
   });
   if (!sol) notFound();
 
   const exames = (sol.examesNecessarios as ExameItem[] | null) ?? [];
+
+  const podeRotear = ["ROTEADO", "AGENDADO", "REALIZADO"].includes(sol.status);
+  const magicLink =
+    coordenacao && podeRotear
+      ? linkAtendimento(
+          await criarTokenAtendimento({
+            solicitacaoId: sol.id,
+            escopo: sol.modalidade === "TELEMEDICINA" ? "MEDICO" : "CLINICA",
+          }),
+        )
+      : null;
 
   const [medicos, clinicas] =
     coordenacao && sol.status === "SOLICITADO"
@@ -75,6 +89,9 @@ export default async function SolicitacaoDetalhe({
               <Info label="Modalidade" value={sol.modalidade === "TELEMEDICINA" ? "Telemedicina" : "Presencial"} />
               <Info label="Cidade/UF" value={[sol.funcionario.cidade, sol.funcionario.uf].filter(Boolean).join("/") || "—"} />
               <Info label="Empresa" value={sol.empresaCliente.razaoSocial} />
+              {sol.parecer && (
+                <Info label="Parecer" value={sol.parecer === "APTO" ? "Apto" : "Inapto"} />
+              )}
             </dl>
             <div className="mt-3 text-sm">
               <div className="text-zinc-500">Exames</div>
@@ -95,6 +112,45 @@ export default async function SolicitacaoDetalhe({
                 <span className="text-zinc-500">Roteado para: </span>
                 {sol.medico ? `Dr. ${sol.medico.nome}` : sol.clinica?.nome}
               </p>
+            )}
+          </div>
+
+          <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+            <h2 className="mb-3 font-medium">Ações</h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <a
+                href={`/painel/solicitacoes/${sol.id}/guia`}
+                target="_blank"
+                className="rounded-md border border-zinc-300 px-3 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+              >
+                Guia (PDF)
+              </a>
+              {sol.aso && (
+                <a
+                  href={`/painel/solicitacoes/${sol.id}/aso`}
+                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                >
+                  Baixar ASO
+                </a>
+              )}
+              {sol.status === "ASO_EMITIDO" && (
+                <form action={concluirSolicitacao}>
+                  <input type="hidden" name="solicitacaoId" value={sol.id} />
+                  <button className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white dark:bg-white dark:text-zinc-900">
+                    Concluir
+                  </button>
+                </form>
+              )}
+            </div>
+            {magicLink && (
+              <div className="mt-3 text-sm">
+                <div className="text-zinc-500">
+                  Link de atendimento ({sol.modalidade === "TELEMEDICINA" ? "médico" : "clínica"}):
+                </div>
+                <code className="mt-1 block break-all rounded-md bg-zinc-100 p-2 text-xs dark:bg-zinc-800">
+                  {magicLink}
+                </code>
+              </div>
             )}
           </div>
 
