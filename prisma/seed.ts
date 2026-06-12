@@ -22,14 +22,19 @@ async function main() {
     }
   }
 
+  const adminHash = await bcrypt.hash(adminSenha, 10);
   await prisma.usuario.upsert({
     where: { email: adminEmail },
-    update: {},
+    // Se SEED_ADMIN_SENHA está definido no ambiente, ele é a fonte da verdade:
+    // garante a senha do admin a cada deploy (evita "senha antiga" presa).
+    update: process.env.SEED_ADMIN_SENHA
+      ? { senhaHash: adminHash, role: "ADMIN" }
+      : {},
     create: {
       email: adminEmail,
       nome: "Administrador",
       role: "ADMIN",
-      senhaHash: await bcrypt.hash(adminSenha, 10),
+      senhaHash: adminHash,
     },
   });
 
