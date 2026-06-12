@@ -113,6 +113,9 @@ export async function emitirAso(
   });
 
   await notify("aso.emitido", { solicitacaoId: sol.id, parecer: parecer.data });
+  if (parecer.data === "INAPTO") {
+    await notify("parecer.inapto", { solicitacaoId: sol.id });
+  }
   revalidatePath(`/atendimento/${token}`);
   revalidatePath(`/painel/solicitacoes/${sol.id}`);
   return { ok: true };
