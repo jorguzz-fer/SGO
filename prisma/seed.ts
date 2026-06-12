@@ -4,8 +4,23 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@wowmais.com.br";
+  const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "fer.jorge@gmail.com";
   const adminSenha = process.env.SEED_ADMIN_SENHA ?? "trocar-esta-senha";
+
+  // Renomeia o admin legado (admin@wowmais.com.br) para o novo e-mail,
+  // preservando a senha — roda uma vez e fica inócuo depois.
+  const legado = await prisma.usuario.findUnique({
+    where: { email: "admin@wowmais.com.br" },
+  });
+  if (legado && adminEmail !== "admin@wowmais.com.br") {
+    const jaExiste = await prisma.usuario.findUnique({ where: { email: adminEmail } });
+    if (!jaExiste) {
+      await prisma.usuario.update({
+        where: { id: legado.id },
+        data: { email: adminEmail },
+      });
+    }
+  }
 
   await prisma.usuario.upsert({
     where: { email: adminEmail },
