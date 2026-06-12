@@ -23,6 +23,7 @@ model EmpresaCliente {
   logoUrl     String? // white label
   status      EmpresaStatus @default(ATIVO)
   plano       String   @default("piloto")
+  valorVidaCentavos Int @default(1990) // faturamento por vida (R$ 19,90)
   criadoEm    DateTime @default(now())
 
   funcionarios Funcionario[]

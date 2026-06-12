@@ -34,6 +34,12 @@ export default async function PainelLayout({
             <Link href="/painel/solicitacoes" className="text-zinc-600 hover:underline dark:text-zinc-300">
               Solicitações
             </Link>
+            <Link href="/painel/documentos" className="text-zinc-600 hover:underline dark:text-zinc-300">
+              Documentos
+            </Link>
+            <Link href="/painel/faturamento" className="text-zinc-600 hover:underline dark:text-zinc-300">
+              Faturamento
+            </Link>
             {isCoordenacao(user.role) && (
               <Link href="/painel/credenciados" className="text-zinc-600 hover:underline dark:text-zinc-300">
                 Credenciados
